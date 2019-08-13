@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cn.mapper.var.VarMapper">
+
+	<resultMap id="proMap" type="com.cn.domain.var.TbVar">
+		<result property="var1" column="var1" />
+		<result property="var2" column="var2" />
+		<result property="var3" column="var3" />
+		<result property="var4" column="var4" />
+		<result property="var5" column="var5" />
+		
+	</resultMap>
+	
+	
+	
+	<insert id="insert" parameterType="map">
+		insert into tb_var (
+			var1,
+			var2,
+			var3,
+			var4,
+			var5
+		)values(
+			#{var1},
+			#{var2},
+			#{var3},
+			#{var4},
+			#{var5}
+		)
+	</insert>
+	
+	<insert id="insertVar" parameterType="map">
+		insert into tb_var (
+			var1,
+			var2,
+			var3,
+			var4,
+			var5
+		)values(
+			#{var1},
+			#{var2},
+			#{var3},
+			#{var4},
+			#{var5}
+		)
+	</insert>
+
+</mapper>

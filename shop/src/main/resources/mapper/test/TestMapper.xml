@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cn.mapper.test.TestMapper">
+	
+	<insert id="insertTest" parameterType="map">
+		insert into tb_var(
+			var1,
+			var2,
+			var3,
+			var4,
+			var5
+		)values(
+			#{var1},
+			#{var2},
+			#{var3},
+			#{var4},
+			#{var5}
+		)
+	</insert>
+
+</mapper>

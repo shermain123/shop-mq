@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+	default-autowire="byName"
+	>
+	<!-- default-autowire="byName" -->
+
+	<!-- 自动扫描 -->
+	<context:component-scan base-package="com.cn"/>
+	
+	 <!-- 引入配置文件 -->  
+    <bean id="propertyConfigurer"  
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+        <!-- <property name="location" value="classpath:database.properties" />  --> 
+    </bean>  
+    
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"  >  
+        <property name="driverClass" value="com.mysql.jdbc.Driver" />  
+       <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/shopdb" />
+		<property name="user" value="root" />
+		<property name="password" value="root" />
+		
+		<!-- 初始化连接池中的连接数，取值应在minPoolSize与maxPoolSize之间，默认为3 -->
+		<property name="initialPoolSize" value="3" />
+		<!-- 连接池中保留的最小连接数，默认为：3--> 
+		<property name="minPoolSize" value="3" />
+		<!-- 最大连接数 -->
+		<property name="maxPoolSize" value="10" />
+		<!--最大空闲时间，60秒内未使用则连接被丢弃。若为0则永不丢弃。默认值: 0 -->
+		<property name="maxIdleTime" value="60" />
+		<!-- 当连接池连接耗尽时，客户端调用getConnection()后等待获取新连接的时间，超时后将抛出SQLException，如设为0则无限期等待。单位毫秒。默认: 0 --> 
+		<property name="checkoutTimeout" value="3000"/>
+		<!-- 当连接耗尽时一次获取2个 -->
+		<property name="acquireIncrement" value="2"/>
+		<!-- 定义从数据库获取连接失败时重复的次数  默认30 ；小于等于0无限次-->
+		<property name="acquireRetryAttempts" value="0"/>
+		<!-- 连接空闲时测试是否有效 -->
+		<property name="testConnectionOnCheckin" value="true" />
+		<property name="preferredTestQuery" value="select 1" />
+		
+		 <!--每60秒检查所有连接池中的空闲连接。默认值: 0，不检查 -->  
+		<property name="idleConnectionTestPeriod" value="21600" />
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒,最小逐出时间 -->
+		
+		<!-- 
+		 获取连接最大等待时间 
+		<property name="maxWait" value="60000" />
+		 获取连接时测试是否有效 
+		<property name="testOnBorrow" value="false" />
+		 归还连接时是否测试有效 
+		<property name="testOnReturn" value="false" />
+		<property name="minEvictableIdleTimeMillis" value="25200000" />
+		 打开关闭“赃”连接（调用过getVendorConnection方法）功能
+		<property name="removeAbandoned" value="true" />
+		 连接泄漏的超时时间 
+		<property name="removeAbandonedTimeout" value="1800" />
+		 关闭泄漏的连接时打印堆栈信息 
+		<property name="logAbandoned" value="true" />
+		 监控数据库 
+		 <property name="filters" value="stat" /> 
+		<property name="filters" value="mergeStat" /> 
+		 -->
+    </bean>  
+     <!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations">
+			<list>
+				<value>classpath*:mapper/*/*Mapper.xml</value>
+			</list>
+		</property>
+		<property name="typeAliasesPackage" value="com.cn.domain" />
+	</bean>
+	
+	<!-- Mapper接口所在包名，Spring会自动查找其下的类 -->  
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.cn.mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>  
+	
+	
+	
+	 
+	<!-- 
+	<component-scan base-package="com.cn.service" use-default-filters="false" >
+		<include-filter type="annotation" expression="org.springframework.stereotype.Service" ></include-filter>
+	</component-scan>
+	 -->
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 事务管理器### -->
+	
+	<!-- ### 启用注解式事务 
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	
+	<tx:advice id="" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+	启用注解式事务 ### -->
+
+	<!--###配置事务的传播特性 
+	* PROPAGATION_REQUIRED：支持当前事务，如果当前没有事务，就新建一个事务。这是最常见的选择。 <br/>
+ 	* PROPAGATION_SUPPORTS：支持当前事务，如果当前没有事务，就以非事务方式执行。 <br/>
+ 	* PROPAGATION_MANDATORY：支持当前事务，如果当前没有事务，就抛出异常。 <br/>
+ 	* PROPAGATION_REQUIRES_NEW：新建事务，如果当前存在事务，把当前事务挂起。<br/>
+ 	* PROPAGATION_NOT_SUPPORTED：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。 <br/>
+ 	* PROPAGATION_NEVER：以非事务方式执行，如果当前存在事务，则抛出异常。 <br/>
+ 	* PROPAGATION_NESTED：支持当前事务，如果当前事务存在，则执行一个嵌套事务，如果当前没有事务，就新建一个事务<br/>
+	-->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="insert*" propagation="REQUIRED" />
+			
+			<tx:method name="del*" propagation="REQUIRED" />
+			<tx:method name="remove*" propagation="REQUIRED" />
+			
+			<tx:method name="modify*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="merge*" propagation="REQUIRED" />
+			<tx:method name="edit*" propagation="REQUIRED" />
+			
+			<tx:method name="do*" propagation="REQUIRED" />
+			
+			<tx:method name="is*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="find*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="get*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="load*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="query*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="select*" propagation="REQUIRED" read-only="true" />
+			
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<!--配置事务的传播特性### -->
+
+	<!--###定义参与事务的切面 
+	①显式使用CGLib动态代理
+	②希望对Mgr所有方法实施事务增强
+	-->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="allManagerMethod" expression="execution(* com.cn.service.*.*(..))" />
+		<aop:advisor pointcut-ref="allManagerMethod" advice-ref="txAdvice" />
+	</aop:config>
+
+</beans>
