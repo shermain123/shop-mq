@@ -49,7 +49,7 @@
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- JSon -->
-		<jackson.version>2.3.3</jackson.version>
+		<jackson.version>2.12.1</jackson.version>
 
 		<servlet.version>3.0.1</servlet.version>
 
